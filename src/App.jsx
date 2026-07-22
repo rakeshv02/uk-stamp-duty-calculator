@@ -1,15 +1,18 @@
 const { useState } = React;
 
+// Source: gov.uk — rates in force from 1 April 2025
 const SDLT_STANDARD = [
-  { min: 0, max: 250000, rate: 0 },
+  { min: 0, max: 125000, rate: 0 },
+  { min: 125000, max: 250000, rate: 0.02 },
   { min: 250000, max: 925000, rate: 0.05 },
   { min: 925000, max: 1500000, rate: 0.10 },
   { min: 1500000, max: Infinity, rate: 0.12 },
 ];
 
+// FTB: 0% up to £300k, 5% £300k–£500k. Over £500k → standard rates apply (no relief).
 const SDLT_FTB = [
-  { min: 0, max: 425000, rate: 0 },
-  { min: 425000, max: 625000, rate: 0.05 },
+  { min: 0, max: 300000, rate: 0 },
+  { min: 300000, max: 500000, rate: 0.05 },
 ];
 
 const LBTT_STANDARD = [
@@ -56,7 +59,10 @@ function calcWithSurcharge(price, brackets, surcharge) {
 
 function calcEnglandSDLT(price, buyerType) {
   if (buyerType === "additional") return calcWithSurcharge(price, SDLT_STANDARD, 0.03);
-  if (buyerType === "firsttime") return price > 625000 ? calcBrackets(price, SDLT_STANDARD) : calcBrackets(price, SDLT_FTB);
+  if (buyerType === "firsttime") {
+    // FTB relief only applies if price ≤ £500,000; otherwise standard rates
+    return price > 500000 ? calcBrackets(price, SDLT_STANDARD) : calcBrackets(price, SDLT_FTB);
+  }
   return calcBrackets(price, SDLT_STANDARD);
 }
 
@@ -99,7 +105,7 @@ export default function UKStampDutyCalculator() {
     if (region === "england") {
       taxName = "SDLT";
       tax = calcEnglandSDLT(p, buyerType);
-      const effectiveBrackets = buyerType === "firsttime" && p <= 625000 ? SDLT_FTB : SDLT_STANDARD;
+      const effectiveBrackets = buyerType === "firsttime" && p <= 500000 ? SDLT_FTB : SDLT_STANDARD;
       const surcharge = buyerType === "additional" ? 0.03 : 0;
       bands = getBandBreakdown(p, effectiveBrackets, surcharge);
     } else if (region === "scotland") {
@@ -130,7 +136,7 @@ export default function UKStampDutyCalculator() {
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div style={{ fontSize: 48, marginBottom: 8 }}>🏡</div>
           <h1 style={{ margin: 0, fontSize: 32, fontWeight: 800, color: "#1a1a2e" }}>UK Stamp Duty Calculator</h1>
-          <p style={{ margin: "8px 0 0", color: "#555", fontSize: 16 }}>SDLT (England & NI) · LBTT (Scotland) · LTT (Wales) — 2024</p>
+          <p style={{ margin: "8px 0 0", color: "#555", fontSize: 16 }}>SDLT (England & NI) · LBTT (Scotland) · LTT (Wales) — rates from 1 April 2025</p>
         </div>
 
         <div style={{ background: "#fff", borderRadius: 16, padding: 28, boxShadow: "0 4px 24px rgba(0,0,0,0.08)", marginBottom: 24 }}>
@@ -242,19 +248,15 @@ export default function UKStampDutyCalculator() {
                 })}
               </div>
             </div>
-
-            <div style={{ background: "#fff3cd", border: "1px solid #ffc107", borderRadius: 12, padding: 16, fontSize: 13, color: "#664d03", marginBottom: 24 }}>
-              <strong>Important:</strong> SDLT rates shown use the thresholds in force from September 2022 (£250k nil-rate). From <strong>1 April 2025</strong> the nil-rate threshold reverts to £125,000 (£300,000 for first-time buyers). Always confirm with HMRC or a solicitor before exchange.
-            </div>
           </>
         )}
 
         <div style={{ background: "#fff", borderRadius: 16, padding: 24, boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-          <h3 style={{ margin: "0 0 16px", fontSize: 16, fontWeight: 700, color: "#1a1a2e" }}>📊 SDLT Rate Tables (England & NI)</h3>
+          <h3 style={{ margin: "0 0 16px", fontSize: 16, fontWeight: 700, color: "#1a1a2e" }}>📊 SDLT Rate Tables (England & NI) — from 1 April 2025</h3>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
             {[
-              { title: "Standard / Moving Home", rows: [["Up to £250,000","0%"],["£250,001–£925,000","5%"],["£925,001–£1.5m","10%"],["Over £1.5m","12%"]] },
-              { title: "First-Time Buyer Relief", rows: [["Up to £425,000","0%"],["£425,001–£625,000","5%"],["Over £625,000","Standard rates (no relief)"]], note: "Only on properties up to £625,000" },
+              { title: "Standard / Moving Home", rows: [["Up to £125,000","0%"],["£125,001–£250,000","2%"],["£250,001–£925,000","5%"],["£925,001–£1.5m","10%"],["Over £1.5m","12%"]] },
+              { title: "First-Time Buyer Relief", rows: [["Up to £300,000","0%"],["£300,001–£500,000","5%"],["Over £500,000","Standard rates (no relief)"]], note: "Only on properties up to £500,000" },
             ].map((tbl, ti) => (
               <div key={ti}>
                 <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 10, color: "#7c3aed" }}>{tbl.title}</div>

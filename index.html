@@ -1,42 +1,374 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UK Stamp Duty Calculator 2024 – SDLT, LBTT & LTT | Tabutility</title>
+  <meta name="description" content="Free UK stamp duty calculator for England, Scotland and Wales. Instantly calculate SDLT, LBTT or LTT for first-time buyers, home movers and additional property purchases." />
+  <meta name="keywords" content="stamp duty calculator UK, SDLT calculator, first time buyer stamp duty, additional property stamp duty, LBTT Scotland, LTT Wales, property tax UK" />
+  <link rel="canonical" href="https://uk-stamp-duty-calculator.tabutility.com/" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-78VZWJ5B1W"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-78VZWJ5B1W');</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7039091592734005" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}body{background:#faf5ff;}
+    #ad-top{text-align:center;padding:10px;background:#fff;border-bottom:1px solid #e9d5ff;}
+    #ad-bottom{text-align:center;padding:20px;background:#fff;border-top:1px solid #e9d5ff;margin-top:20px;}
+    .site-nav{background:#1a1a2e;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;}
+    .site-nav a{color:#a5b4fc;text-decoration:none;font-size:14px;font-family:'Segoe UI',Arial,sans-serif;}
+    .site-nav a:hover{color:#fff;}.nav-brand{color:#fff;font-weight:700;font-size:16px;font-family:'Segoe UI',Arial,sans-serif;}
+  </style>
+</head>
+<body>
+  <nav class="site-nav"><span class="nav-brand">⚡ Tabutility</span><a href="https://tabutility.com">← All Tools</a></nav>
+  <div id="ad-top"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7039091592734005" data-ad-slot="auto" data-ad-format="horizontal" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+  <div id="root"></div>
+  <div id="ad-bottom"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7039091592734005" data-ad-slot="auto" data-ad-format="rectangle" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+  <script type="text/babel">
+    const { useState } = React;
 
-    <!-- ✏️ UPDATE THESE FOR EVERY NEW TOOL -->
-    <title>TOOL NAME — TOOL TAGLINE | Tabutility</title>
-    <meta name="description" content="TOOL DESCRIPTION. No sign-up, runs in your browser." />
-    <meta name="keywords" content="KEYWORD 1, KEYWORD 2, KEYWORD 3, free TOOL NAME" />
-    <link rel="canonical" href="https://SUBDOMAIN.tabutility.com/" />
-    <meta property="og:url" content="https://SUBDOMAIN.tabutility.com/" />
-    <meta property="og:title" content="TOOL NAME — TOOL TAGLINE" />
-    <meta property="og:description" content="TOOL DESCRIPTION. Free, no sign-up." />
-    <meta name="twitter:title" content="TOOL NAME — TOOL TAGLINE" />
-    <meta name="twitter:description" content="TOOL DESCRIPTION. Free, no sign-up." />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>EMOJI</text></svg>" />
-    <!-- ✏️ END OF SECTION TO UPDATE -->
+    // ── England & NI: SDLT ──────────────────────────────────────────────────
+    // Standard (from 1 Oct 2025 — reverted thresholds shown, currently 2024 temporary thresholds)
+    // Using the current 2024 thresholds (in force since Sep 2022, ending 31 Mar 2025)
+    // NOTE: from 1 April 2025, nil-rate threshold drops back to £125k (£300k FTB)
+    // We use the pre-April 2025 thresholds (£250k nil-rate) as this is still current
 
-    <!-- DO NOT CHANGE ANYTHING BELOW THIS LINE -->
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Tabutility" />
-    <meta name="twitter:card" content="summary" />
-    <meta name="robots" content="index, follow" />
+    const SDLT_STANDARD = [
+      { min: 0, max: 250000, rate: 0 },
+      { min: 250000, max: 925000, rate: 0.05 },
+      { min: 925000, max: 1500000, rate: 0.10 },
+      { min: 1500000, max: Infinity, rate: 0.12 },
+    ];
 
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7039091592734005" crossorigin="anonymous"></script>
+    const SDLT_FTB = [
+      // Up to £425k: 0%, £425k–£625k: 5%, above £625k: standard rates apply (no relief)
+      { min: 0, max: 425000, rate: 0 },
+      { min: 425000, max: 625000, rate: 0.05 },
+      // above 625k no FTB relief → use standard
+    ];
 
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-78VZWJ5B1W"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-78VZWJ5B1W');
-    </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+    const SDLT_ADDITIONAL_SURCHARGE = 0.03; // +3% on every band
+
+    // ── Scotland: LBTT ──────────────────────────────────────────────────────
+    const LBTT_STANDARD = [
+      { min: 0, max: 145000, rate: 0 },
+      { min: 145000, max: 250000, rate: 0.02 },
+      { min: 250000, max: 325000, rate: 0.05 },
+      { min: 325000, max: 750000, rate: 0.10 },
+      { min: 750000, max: Infinity, rate: 0.12 },
+    ];
+
+    const LBTT_FTB = [
+      { min: 0, max: 175000, rate: 0 },
+      { min: 175000, max: 250000, rate: 0.02 },
+      { min: 250000, max: 325000, rate: 0.05 },
+      { min: 325000, max: 750000, rate: 0.10 },
+      { min: 750000, max: Infinity, rate: 0.12 },
+    ];
+
+    const LBTT_ADDITIONAL_SURCHARGE = 0.06; // ADS: 6%
+
+    // ── Wales: LTT ──────────────────────────────────────────────────────────
+    const LTT_STANDARD = [
+      { min: 0, max: 225000, rate: 0 },
+      { min: 225000, max: 400000, rate: 0.06 },
+      { min: 400000, max: 750000, rate: 0.075 },
+      { min: 750000, max: 1500000, rate: 0.10 },
+      { min: 1500000, max: Infinity, rate: 0.12 },
+    ];
+
+    const LTT_ADDITIONAL_SURCHARGE = 0.04;
+
+    function calcSDLT(price, brackets) {
+      let tax = 0;
+      for (const b of brackets) {
+        if (price <= b.min) break;
+        tax += (Math.min(price, b.max) - b.min) * b.rate;
+      }
+      return tax;
+    }
+
+    function calcWithSurcharge(price, brackets, surcharge) {
+      let tax = 0;
+      // Apply surcharge on the full price (all bands)
+      for (const b of brackets) {
+        if (price <= b.min) break;
+        const portion = Math.min(price, b.max) - b.min;
+        tax += portion * (b.rate + surcharge);
+      }
+      return tax;
+    }
+
+    function calcEnglandSDLT(price, buyerType) {
+      if (buyerType === "additional") {
+        return calcWithSurcharge(price, SDLT_STANDARD, SDLT_ADDITIONAL_SURCHARGE);
+      }
+      if (buyerType === "firsttime") {
+        if (price > 625000) {
+          // No FTB relief — use standard
+          return calcSDLT(price, SDLT_STANDARD);
+        }
+        return calcSDLT(price, SDLT_FTB);
+      }
+      return calcSDLT(price, SDLT_STANDARD);
+    }
+
+    function calcScotlandLBTT(price, buyerType) {
+      const brackets = buyerType === "firsttime" ? LBTT_FTB : LBTT_STANDARD;
+      const baseTax = calcSDLT(price, brackets);
+      const ads = buyerType === "additional" ? price * LBTT_ADDITIONAL_SURCHARGE : 0;
+      return baseTax + ads;
+    }
+
+    function calcWalesLTT(price, buyerType) {
+      const baseTax = calcSDLT(price, LTT_STANDARD);
+      const surcharge = buyerType === "additional" ? price * LTT_ADDITIONAL_SURCHARGE : 0;
+      return baseTax + surcharge;
+    }
+
+    function getBandBreakdown(price, brackets, surcharge) {
+      return brackets.map(b => {
+        if (price <= b.min) return null;
+        const portion = Math.min(price, b.max) - b.min;
+        const effectiveRate = b.rate + (surcharge || 0);
+        const tax = portion * effectiveRate;
+        const label = b.max === Infinity ? `Over £${(b.min/1000).toFixed(0)}k` : `£${(b.min/1000).toFixed(0)}k – £${(b.max/1000).toFixed(0)}k`;
+        return { label, portion, rate: effectiveRate * 100, tax };
+      }).filter(Boolean);
+    }
+
+    const fmt = n => "£" + Math.round(n).toLocaleString();
+    const pct = n => n.toFixed(2) + "%";
+
+    function App() {
+      const [price, setPrice] = useState("350000");
+      const [buyerType, setBuyerType] = useState("movinghome");
+      const [region, setRegion] = useState("england");
+      const [result, setResult] = useState(null);
+
+      const calculate = () => {
+        const p = parseFloat(price) || 0;
+        let tax = 0;
+        let bands = [];
+        let taxName = "";
+        let surcharge = 0;
+
+        if (region === "england") {
+          taxName = "SDLT";
+          if (buyerType === "additional") {
+            tax = calcEnglandSDLT(p, "additional");
+            surcharge = SDLT_ADDITIONAL_SURCHARGE;
+            bands = getBandBreakdown(p, SDLT_STANDARD, surcharge);
+          } else if (buyerType === "firsttime") {
+            tax = calcEnglandSDLT(p, "firsttime");
+            const effectiveBrackets = p > 625000 ? SDLT_STANDARD : SDLT_FTB;
+            bands = getBandBreakdown(p, effectiveBrackets, 0);
+          } else {
+            tax = calcEnglandSDLT(p, "movinghome");
+            bands = getBandBreakdown(p, SDLT_STANDARD, 0);
+          }
+        } else if (region === "scotland") {
+          taxName = "LBTT";
+          const brackets = buyerType === "firsttime" ? LBTT_FTB : LBTT_STANDARD;
+          tax = calcScotlandLBTT(p, buyerType);
+          surcharge = buyerType === "additional" ? LBTT_ADDITIONAL_SURCHARGE : 0;
+          bands = getBandBreakdown(p, brackets, 0);
+          if (buyerType === "additional") {
+            bands.push({ label: "ADS (additional surcharge)", portion: p, rate: LBTT_ADDITIONAL_SURCHARGE * 100, tax: p * LBTT_ADDITIONAL_SURCHARGE });
+          }
+        } else {
+          taxName = "LTT";
+          tax = calcWalesLTT(p, buyerType);
+          surcharge = buyerType === "additional" ? LTT_ADDITIONAL_SURCHARGE : 0;
+          bands = getBandBreakdown(p, LTT_STANDARD, 0);
+          if (buyerType === "additional") {
+            bands.push({ label: "Additional surcharge (4%)", portion: p, rate: LTT_ADDITIONAL_SURCHARGE * 100, tax: p * LTT_ADDITIONAL_SURCHARGE });
+          }
+        }
+
+        const effectiveRate = p > 0 ? (tax / p) * 100 : 0;
+        setResult({ p, tax, effectiveRate, bands, taxName });
+      };
+
+      const inputStyle = { width: "100%", padding: "12px", border: "2px solid #e9d5ff", borderRadius: 10, fontSize: 16, boxSizing: "border-box", outline: "none" };
+      const labelStyle = { display: "block", fontWeight: 600, marginBottom: 6, color: "#333" };
+
+      const regionLabel = { england: "England & NI (SDLT)", scotland: "Scotland (LBTT)", wales: "Wales (LTT)" }[region];
+      const buyerLabel = { firsttime: "First-Time Buyer", movinghome: "Moving Home", additional: "Additional / Buy-to-Let" }[buyerType];
+
+      return (
+        <div style={{ fontFamily: "'Segoe UI',Arial,sans-serif", background: "#faf5ff", minHeight: "100vh", padding: "20px" }}>
+          <div style={{ maxWidth: 820, margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: 32 }}>
+              <div style={{ fontSize: 48, marginBottom: 8 }}>🏡</div>
+              <h1 style={{ margin: 0, fontSize: 32, fontWeight: 800, color: "#1a1a2e" }}>UK Stamp Duty Calculator</h1>
+              <p style={{ margin: "8px 0 0", color: "#555", fontSize: 16 }}>SDLT (England & NI) · LBTT (Scotland) · LTT (Wales) — 2024</p>
+            </div>
+
+            <div style={{ background: "#fff", borderRadius: 16, padding: 28, boxShadow: "0 4px 24px rgba(0,0,0,0.08)", marginBottom: 24 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 20 }}>
+                <div>
+                  <label style={labelStyle}>Property Price</label>
+                  <div style={{ position: "relative" }}>
+                    <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: "#666", fontWeight: 700 }}>£</span>
+                    <input type="number" value={price} onChange={e => setPrice(e.target.value)}
+                      style={{ ...inputStyle, paddingLeft: 28 }} placeholder="350000" />
+                  </div>
+                </div>
+                <div>
+                  <label style={labelStyle}>Region</label>
+                  <select value={region} onChange={e => setRegion(e.target.value)} style={inputStyle}>
+                    <option value="england">England & Northern Ireland</option>
+                    <option value="scotland">Scotland</option>
+                    <option value="wales">Wales</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={labelStyle}>Buyer Type</label>
+                  <select value={buyerType} onChange={e => setBuyerType(e.target.value)} style={inputStyle}>
+                    <option value="firsttime">First-Time Buyer</option>
+                    <option value="movinghome">Moving Home (replacing main residence)</option>
+                    <option value="additional">Additional Property / Buy-to-Let</option>
+                  </select>
+                </div>
+              </div>
+              <button onClick={calculate}
+                style={{ width: "100%", marginTop: 24, padding: "16px", background: "linear-gradient(135deg, #7c3aed, #6d28d9)", color: "#fff", border: "none", borderRadius: 12, fontSize: 18, fontWeight: 700, cursor: "pointer" }}>
+                Calculate Stamp Duty
+              </button>
+            </div>
+
+            {result && <>
+              {/* Key result */}
+              <div style={{ background: "linear-gradient(135deg, #7c3aed, #6d28d9)", borderRadius: 16, padding: 28, marginBottom: 24, color: "#fff", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
+                <div>
+                  <div style={{ fontSize: 14, opacity: 0.8, marginBottom: 4 }}>{buyerLabel} · {regionLabel}</div>
+                  <div style={{ fontSize: 42, fontWeight: 900 }}>{fmt(result.tax)}</div>
+                  <div style={{ fontSize: 16, opacity: 0.9 }}>{result.taxName} due on {fmt(result.p)} property</div>
+                </div>
+                <div style={{ textAlign: "right" }}>
+                  <div style={{ fontSize: 13, opacity: 0.8, marginBottom: 4 }}>Effective rate</div>
+                  <div style={{ fontSize: 32, fontWeight: 800 }}>{pct(result.effectiveRate)}</div>
+                  <div style={{ fontSize: 13, opacity: 0.8, marginTop: 4 }}>Total incl. duty: {fmt(result.p + result.tax)}</div>
+                </div>
+              </div>
+
+              {/* Band breakdown */}
+              <div style={{ background: "#fff", borderRadius: 16, padding: 24, boxShadow: "0 2px 12px rgba(0,0,0,0.06)", marginBottom: 24 }}>
+                <h3 style={{ margin: "0 0 18px", fontSize: 16, fontWeight: 700, color: "#1a1a2e" }}>Tax Band Breakdown</h3>
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+                    <thead>
+                      <tr style={{ background: "#faf5ff" }}>
+                        {["Band", "Portion in This Band", "Rate", `${result.taxName} Due`].map(h => (
+                          <th key={h} style={{ padding: "10px 14px", textAlign: "left", fontWeight: 700, color: "#333", whiteSpace: "nowrap" }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {result.bands.map((band, i) => (
+                        <tr key={i} style={{ borderBottom: "1px solid #f1f3f5", background: i % 2 === 0 ? "#fff" : "#fafafa" }}>
+                          <td style={{ padding: "11px 14px", color: "#333" }}>{band.label}</td>
+                          <td style={{ padding: "11px 14px", color: "#555" }}>{fmt(band.portion)}</td>
+                          <td style={{ padding: "11px 14px", color: band.rate === 0 ? "#059669" : "#7c3aed", fontWeight: 600 }}>{band.rate.toFixed(1)}%</td>
+                          <td style={{ padding: "11px 14px", color: band.tax === 0 ? "#059669" : "#1a1a2e", fontWeight: band.tax > 0 ? 600 : 400 }}>{band.tax === 0 ? "£0 ✓" : fmt(band.tax)}</td>
+                        </tr>
+                      ))}
+                      <tr style={{ background: "#faf5ff", fontWeight: 700 }}>
+                        <td colSpan={3} style={{ padding: "12px 14px", color: "#1a1a2e" }}>Total {result.taxName}</td>
+                        <td style={{ padding: "12px 14px", color: "#7c3aed", fontSize: 16 }}>{fmt(result.tax)}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Visual bar */}
+              <div style={{ background: "#fff", borderRadius: 16, padding: 24, boxShadow: "0 2px 12px rgba(0,0,0,0.06)", marginBottom: 24 }}>
+                <h3 style={{ margin: "0 0 16px", fontSize: 16, fontWeight: 700, color: "#1a1a2e" }}>Cost Breakdown</h3>
+                <div style={{ display: "flex", height: 28, borderRadius: 8, overflow: "hidden", marginBottom: 12 }}>
+                  <div style={{ width: `${(result.p / (result.p + result.tax)) * 100}%`, background: "#7c3aed", opacity: 0.15 }} />
+                  <div style={{ width: `${(result.tax / (result.p + result.tax)) * 100}%`, background: "#7c3aed" }} />
+                </div>
+                <div style={{ display: "flex", gap: 24, fontSize: 13 }}>
+                  <div><span style={{ display: "inline-block", width: 12, height: 12, background: "#7c3aed", opacity: 0.3, borderRadius: 2, marginRight: 6 }} />Property Price: {fmt(result.p)}</div>
+                  <div><span style={{ display: "inline-block", width: 12, height: 12, background: "#7c3aed", borderRadius: 2, marginRight: 6 }} />{result.taxName}: {fmt(result.tax)}</div>
+                  <div style={{ marginLeft: "auto", fontWeight: 700 }}>Total: {fmt(result.p + result.tax)}</div>
+                </div>
+              </div>
+
+              {/* Quick comparisons */}
+              <div style={{ background: "#fff", borderRadius: 16, padding: 24, boxShadow: "0 2px 12px rgba(0,0,0,0.06)", marginBottom: 24 }}>
+                <h3 style={{ margin: "0 0 16px", fontSize: 16, fontWeight: 700, color: "#1a1a2e" }}>Compare by Buyer Type (same price)</h3>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12 }}>
+                  {[
+                    { label: "First-Time Buyer", fn: () => { const p = parseFloat(price)||0; return region === "england" ? calcEnglandSDLT(p,"firsttime") : region === "scotland" ? calcScotlandLBTT(p,"firsttime") : calcWalesLTT(p,"firsttime"); } },
+                    { label: "Moving Home", fn: () => { const p = parseFloat(price)||0; return region === "england" ? calcEnglandSDLT(p,"movinghome") : region === "scotland" ? calcScotlandLBTT(p,"movinghome") : calcWalesLTT(p,"movinghome"); } },
+                    { label: "Additional Property", fn: () => { const p = parseFloat(price)||0; return region === "england" ? calcEnglandSDLT(p,"additional") : region === "scotland" ? calcScotlandLBTT(p,"additional") : calcWalesLTT(p,"additional"); } },
+                  ].map((item, i) => {
+                    const t = item.fn();
+                    const isCurrent = item.label.toLowerCase().includes(buyerType === "firsttime" ? "first" : buyerType === "movinghome" ? "moving" : "additional");
+                    return (
+                      <div key={i} style={{ padding: 16, borderRadius: 12, border: `2px solid ${isCurrent ? "#7c3aed" : "#e9d5ff"}`, background: isCurrent ? "#faf5ff" : "#fff", textAlign: "center" }}>
+                        <div style={{ fontSize: 13, color: "#555", marginBottom: 6 }}>{item.label}</div>
+                        <div style={{ fontSize: 20, fontWeight: 800, color: isCurrent ? "#7c3aed" : "#333" }}>{fmt(t)}</div>
+                        {isCurrent && <div style={{ fontSize: 11, color: "#7c3aed", marginTop: 4, fontWeight: 600 }}>← Your selection</div>}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div style={{ background: "#fff3cd", border: "1px solid #ffc107", borderRadius: 12, padding: 16, fontSize: 13, color: "#664d03", marginBottom: 24 }}>
+                <strong>Important:</strong> SDLT rates for England are based on the thresholds in force from September 2022 (£250k nil-rate). From <strong>1 April 2025</strong> the nil-rate threshold reverts to £125,000 (£300,000 for first-time buyers). Always confirm with HMRC or a solicitor before exchange.
+              </div>
+            </>}
+
+            {/* Rate table */}
+            <div style={{ background: "#fff", borderRadius: 16, padding: 24, boxShadow: "0 2px 12px rgba(0,0,0,0.06)", marginTop: 8 }}>
+              <h3 style={{ margin: "0 0 16px", fontSize: 16, fontWeight: 700, color: "#1a1a2e" }}>📊 SDLT Rate Tables (England & NI)</h3>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+                {[
+                  {
+                    title: "Standard / Moving Home",
+                    rows: [["Up to £250,000","0%"],["£250,001–£925,000","5%"],["£925,001–£1.5m","10%"],["Over £1.5m","12%"]],
+                  },
+                  {
+                    title: "First-Time Buyer Relief",
+                    rows: [["Up to £425,000","0%"],["£425,001–£625,000","5%"],["Over £625,000","Standard rates (no relief)"]],
+                    note: "Relief only available on properties up to £625,000",
+                  },
+                ].map((tbl, ti) => (
+                  <div key={ti}>
+                    <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 10, color: "#7c3aed" }}>{tbl.title}</div>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                      <tbody>
+                        {tbl.rows.map((row, i) => (
+                          <tr key={i} style={{ borderBottom: "1px solid #f1f3f5" }}>
+                            <td style={{ padding: "8px 0", color: "#444" }}>{row[0]}</td>
+                            <td style={{ padding: "8px 0", fontWeight: 600, color: row[1] === "0%" ? "#059669" : "#7c3aed", textAlign: "right" }}>{row[1]}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    {tbl.note && <p style={{ fontSize: 12, color: "#888", marginTop: 8 }}>{tbl.note}</p>}
+                  </div>
+                ))}
+              </div>
+              <div style={{ marginTop: 16, padding: 12, background: "#faf5ff", borderRadius: 10, fontSize: 13, color: "#555" }}>
+                <strong>Additional property surcharge:</strong> +3% on every band (England/NI) · +6% ADS (Scotland) · +4% (Wales)
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
 </html>

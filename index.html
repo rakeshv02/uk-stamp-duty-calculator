@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>UK Stamp Duty Calculator 2024 – SDLT, LBTT & LTT | Tabutility</title>
+  <title>UK Stamp Duty Calculator 2025 – SDLT, LBTT & LTT | Tabutility</title>
   <meta name="description" content="Free UK stamp duty calculator for England, Scotland and Wales. Instantly calculate SDLT, LBTT or LTT for first-time buyers, home movers and additional property purchases." />
   <meta name="keywords" content="stamp duty calculator UK, SDLT calculator, first time buyer stamp duty, additional property stamp duty, LBTT Scotland, LTT Wales, property tax UK" />
   <link rel="canonical" href="https://uk-stamp-duty-calculator.tabutility.com/" />
@@ -28,26 +28,23 @@
   <div id="root"></div>
   <div id="ad-bottom"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7039091592734005" data-ad-slot="auto" data-ad-format="rectangle" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
   <script type="text/babel">
+    //<![CDATA[
     const { useState } = React;
 
     // ── England & NI: SDLT ──────────────────────────────────────────────────
-    // Standard (from 1 Oct 2025 — reverted thresholds shown, currently 2024 temporary thresholds)
-    // Using the current 2024 thresholds (in force since Sep 2022, ending 31 Mar 2025)
-    // NOTE: from 1 April 2025, nil-rate threshold drops back to £125k (£300k FTB)
-    // We use the pre-April 2025 thresholds (£250k nil-rate) as this is still current
-
+    // Source: gov.uk — rates in force from 1 April 2025
     const SDLT_STANDARD = [
-      { min: 0, max: 250000, rate: 0 },
+      { min: 0, max: 125000, rate: 0 },
+      { min: 125000, max: 250000, rate: 0.02 },
       { min: 250000, max: 925000, rate: 0.05 },
       { min: 925000, max: 1500000, rate: 0.10 },
       { min: 1500000, max: Infinity, rate: 0.12 },
     ];
 
+    // FTB: 0% up to £300k, 5% £300k–£500k. Over £500k → standard rates apply (no relief).
     const SDLT_FTB = [
-      // Up to £425k: 0%, £425k–£625k: 5%, above £625k: standard rates apply (no relief)
-      { min: 0, max: 425000, rate: 0 },
-      { min: 425000, max: 625000, rate: 0.05 },
-      // above 625k no FTB relief → use standard
+      { min: 0, max: 300000, rate: 0 },
+      { min: 300000, max: 500000, rate: 0.05 },
     ];
 
     const SDLT_ADDITIONAL_SURCHARGE = 0.03; // +3% on every band
@@ -107,10 +104,8 @@
         return calcWithSurcharge(price, SDLT_STANDARD, SDLT_ADDITIONAL_SURCHARGE);
       }
       if (buyerType === "firsttime") {
-        if (price > 625000) {
-          // No FTB relief — use standard
-          return calcSDLT(price, SDLT_STANDARD);
-        }
+        // FTB relief only on properties ≤ £500,000 (from 1 April 2025)
+        if (price > 500000) return calcSDLT(price, SDLT_STANDARD);
         return calcSDLT(price, SDLT_FTB);
       }
       return calcSDLT(price, SDLT_STANDARD);
@@ -164,7 +159,7 @@
             bands = getBandBreakdown(p, SDLT_STANDARD, surcharge);
           } else if (buyerType === "firsttime") {
             tax = calcEnglandSDLT(p, "firsttime");
-            const effectiveBrackets = p > 625000 ? SDLT_STANDARD : SDLT_FTB;
+            const effectiveBrackets = p > 500000 ? SDLT_STANDARD : SDLT_FTB;
             bands = getBandBreakdown(p, effectiveBrackets, 0);
           } else {
             tax = calcEnglandSDLT(p, "movinghome");
@@ -322,24 +317,24 @@
                 </div>
               </div>
 
-              <div style={{ background: "#fff3cd", border: "1px solid #ffc107", borderRadius: 12, padding: 16, fontSize: 13, color: "#664d03", marginBottom: 24 }}>
-                <strong>Important:</strong> SDLT rates for England are based on the thresholds in force from September 2022 (£250k nil-rate). From <strong>1 April 2025</strong> the nil-rate threshold reverts to £125,000 (£300,000 for first-time buyers). Always confirm with HMRC or a solicitor before exchange.
+              <div style={{ background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 12, padding: 16, fontSize: 13, color: "#166534", marginBottom: 24 }}>
+                <strong>Rates confirmed:</strong> SDLT thresholds shown are in force from <strong>1 April 2025</strong> (nil-rate reverted to £125k; FTB nil-rate £300k with relief up to £500k). Always confirm with HMRC or a solicitor before exchange.
               </div>
             </>}
 
             {/* Rate table */}
             <div style={{ background: "#fff", borderRadius: 16, padding: 24, boxShadow: "0 2px 12px rgba(0,0,0,0.06)", marginTop: 8 }}>
-              <h3 style={{ margin: "0 0 16px", fontSize: 16, fontWeight: 700, color: "#1a1a2e" }}>📊 SDLT Rate Tables (England & NI)</h3>
+              <h3 style={{ margin: "0 0 16px", fontSize: 16, fontWeight: 700, color: "#1a1a2e" }}>📊 SDLT Rate Tables (England & NI) — from 1 April 2025</h3>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
                 {[
                   {
                     title: "Standard / Moving Home",
-                    rows: [["Up to £250,000","0%"],["£250,001–£925,000","5%"],["£925,001–£1.5m","10%"],["Over £1.5m","12%"]],
+                    rows: [["Up to £125,000","0%"],["£125,001–£250,000","2%"],["£250,001–£925,000","5%"],["£925,001–£1.5m","10%"],["Over £1.5m","12%"]],
                   },
                   {
                     title: "First-Time Buyer Relief",
-                    rows: [["Up to £425,000","0%"],["£425,001–£625,000","5%"],["Over £625,000","Standard rates (no relief)"]],
-                    note: "Relief only available on properties up to £625,000",
+                    rows: [["Up to £300,000","0%"],["£300,001–£500,000","5%"],["Over £500,000","Standard rates (no relief)"]],
+                    note: "Relief only on properties up to £500,000",
                   },
                 ].map((tbl, ti) => (
                   <div key={ti}>
@@ -369,6 +364,7 @@
 
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
+    //]]>
   </script>
 </body>
 </html>

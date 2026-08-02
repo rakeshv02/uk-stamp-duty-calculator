@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
+
 Sitemap: https://uk-stamp-duty-calculator.tabutility.com/sitemap.xml
